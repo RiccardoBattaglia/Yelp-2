@@ -6,6 +6,8 @@ package it.polito.tdp.yelp;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -38,7 +40,7 @@ public class FXMLController {
     private ComboBox<String> cmbCitta; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbLocale"
-    private ComboBox<Business> cmbLocale; // Value injected by FXMLLoader
+    private ComboBox<String> cmbLocale; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
@@ -49,12 +51,43 @@ public class FXMLController {
     	String citta = this.cmbCitta.getValue();
     	if(citta != null) {
     		//TODO popolare la tendina dei locali per la città selezionata
-    		
+    		List<String> listaLocali= new LinkedList<>();
+    		listaLocali.addAll(this.model.getLocali(citta));
+        	Collections.sort(listaLocali);
+        	
+        	cmbLocale.getItems().addAll(listaLocali);
+        	
+        	btnCreaGrafo.setDisable(false);
     	}
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	
+    	String citta = this.cmbCitta.getValue();
+    	if(citta == null) {
+    		this.txtResult.setText("Seleziona una città.\n");
+    		return;
+    	}
+    	
+    	String locale=cmbLocale.getValue();
+    	if(locale == null) {
+    		this.txtResult.setText("Seleziona un locale.\n");
+    		return;
+    	}
+//    	if(locale != null) {
+//    		
+//    		
+//    	}
+    	
+    	this.model.creaGrafo(locale);
+    	
+//    	stampa grafo
+    	this.txtResult.setText("Grafo creato.\n");
+    	this.txtResult.appendText("Ci sono " + this.model.nVertici() + " vertici\n");
+    	this.txtResult.appendText("Ci sono " + this.model.nArchi() + " archi\n\n");
+    	
+    	this.txtResult.appendText("Recnsioni con il max numero di archi: " + this.model.trovaMaxArchiUscenti() + "\nOgnuno con "+this.model.dimmiNArchi(this.model.trovaMaxArchiUscenti())+" archi uscenti\n\n");
     	
     }
 
@@ -75,5 +108,14 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	
+    	btnCreaGrafo.setDisable(true);
+    	
+    	
+    	List<String> listaCity= new LinkedList<>();
+    	listaCity.addAll(this.model.getCity());
+    	Collections.sort(listaCity);
+    	
+    	cmbCitta.getItems().addAll(listaCity);
     }
 }
